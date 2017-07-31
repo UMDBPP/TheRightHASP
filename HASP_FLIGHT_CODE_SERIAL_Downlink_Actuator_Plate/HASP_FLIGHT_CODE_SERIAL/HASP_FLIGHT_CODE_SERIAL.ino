@@ -17,7 +17,10 @@
 int COMMAND = 0;
 uint8_t ReadData;
 int COMMAND_PIN = 0;
-#define COMMAND_PIN 6 
+int teensy_ = 0;
+int teensy = 0;
+#define COMMAND_PIN 6
+#define TEENSY_PIN A4
 #define ACTUATOR_PIN_HBRIDGE_A 3 // yellow
 #define ACTUATOR_PIN_HBRIDGE_B 4 // green
 
@@ -93,6 +96,7 @@ struct ENVData_s
         float ssc_temp;
         float bno_temp;
         float mcp_temp;
+        uint8_t teensy;
 };
 // power data
 struct PWRData_s
@@ -461,7 +465,13 @@ void log_env(struct ENVData_s ENVData, File ENVLogFile)
 {
 // print the time to the file
     print_time(ENVLogFile);
-
+    teensy_ = analogRead(TEENSY_PIN);
+    if (teensy_ == HIGH){
+      teensy = 1;
+    }
+    else if (teensy_ == LOW){
+      teensy = 0;
+    }
 // print the sensor values
     ENVLogFile.print(", ");
     ENVLogFile.print(ENVData.bme_pres);
@@ -476,7 +486,9 @@ void log_env(struct ENVData_s ENVData, File ENVLogFile)
     ENVLogFile.print(", ");
     ENVLogFile.print(ENVData.bno_temp);
     ENVLogFile.print(", ");
-    ENVLogFile.println(ENVData.mcp_temp);
+    ENVLogFile.print(ENVData.mcp_temp);
+    ENVLogFile.print(", ");
+    ENVLogFile.println(teensy);
 
     ENVLogFile.flush();
 }
@@ -637,6 +649,7 @@ uint16_t create_ENV_pkt(uint8_t HK_Pkt_Buff[], struct ENVData_s ENVData)
     payloadSize = addFloatToTlm(ENVData.ssc_temp, HK_Pkt_Buff, payloadSize);    // Add ssc temperature to messsage [Float]
     payloadSize = addFloatToTlm(ENVData.bno_temp, HK_Pkt_Buff, payloadSize);    // Add bno temperature to message [Float]
     payloadSize = addFloatToTlm(ENVData.mcp_temp, HK_Pkt_Buff, payloadSize);    // Add mcp temperature to message [Float]
+    payloadSize = addFloatToTlm(teensy, HK_Pkt_Buff, payloadSize);    // Add teensy message [Float]
 
 // fill the length field
     setPacketLength(HK_Pkt_Buff, payloadSize);
@@ -734,6 +747,7 @@ uint16_t create_IMU_pkt(uint8_t HK_Pkt_Buff[], struct IMUData_s IMUData)
     payloadSize = addFloatToTlm(IMUData.mag_x, HK_Pkt_Buff, payloadSize);    // Add battery accelerometer x to message [Float]
     payloadSize = addFloatToTlm(IMUData.mag_y, HK_Pkt_Buff, payloadSize);    // Add battery accelerometer y to message [Float]
     payloadSize = addFloatToTlm(IMUData.mag_z, HK_Pkt_Buff, payloadSize);    // Add battery accelerometer z to message [Float]
+    
 
 // fill the length field
     setPacketLength(HK_Pkt_Buff, payloadSize);
