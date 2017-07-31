@@ -187,9 +187,9 @@ void setup(void)
      *    is connected to what interface
   
      */
-    debug_serial.begin(250000);
+    debug_serial.begin(1200);
 
-    debug_serial.println("GoGoGadget Camera payload!");
+    debug_serial.println("GoGoGadget HASP!");
 
     //// BNO
     if (!bno.begin())
@@ -319,24 +319,18 @@ void loop(void)
     env_read_ctr++;
 
 // read sensors if time between last read
-    if (imu_read_ctr > imu_read_lim)
-    {
+  //  if (imu_read_ctr > imu_read_lim)
+   // {
         read_imu(&IMUData);
         log_imu(IMUData, IMULogFile);
         imu_read_ctr = 0;
-    }
-    if (pwr_read_ctr > pwr_read_lim)
-    {
-        read_pwr(&PWRData);
-        log_pwr(PWRData, PWRLogFile);
-        pwr_read_ctr = 0;
-    }
-    if (env_read_ctr > env_read_lim)
-    {
+   // }
+ //   if (env_read_ctr > env_read_lim)
+  //  {
         read_env(&ENVData);
         log_env(ENVData, ENVLogFile);
         env_read_ctr = 0;
-    }
+  //  }
 
 // initalize a counter to record how many bytes were read this iteration
     int BytesRead = 0;
@@ -347,13 +341,14 @@ void loop(void)
 
   
     COMMAND = digitalRead(COMMAND_PIN);
-    
+    debug_serial.println("looped");
     
     if (COMMAND == LOW){
       delay(50);
       COMMAND = digitalRead(COMMAND_PIN);
           if (COMMAND == LOW){
           retract(25);
+          debug_serial.println("retract");
           }
     }
 
@@ -429,7 +424,7 @@ void log_imu(struct IMUData_s IMUData, File IMULogFile)
 {
 // print the time to the file
     print_time(IMULogFile);
-
+    debug_serial.println("log imu");
 // print the sensor values
     IMULogFile.print(", ");
     IMULogFile.print(IMUData.system_calibration);
@@ -464,6 +459,7 @@ void log_imu(struct IMUData_s IMUData, File IMULogFile)
 void log_env(struct ENVData_s ENVData, File ENVLogFile)
 {
 // print the time to the file
+    debug_serial.println("log env");
     print_time(ENVLogFile);
     teensy_ = analogRead(TEENSY_PIN);
     if (teensy_ == HIGH){
@@ -473,22 +469,23 @@ void log_env(struct ENVData_s ENVData, File ENVLogFile)
       teensy = 0;
     }
 // print the sensor values
-    ENVLogFile.print(", ");
-    ENVLogFile.print(ENVData.bme_pres);
-    ENVLogFile.print(", ");
-    ENVLogFile.print(ENVData.bme_temp);
-    ENVLogFile.print(", ");
-    ENVLogFile.print(ENVData.bme_humid);
-    ENVLogFile.print(", ");
-    ENVLogFile.print(ENVData.ssc_pres);
-    ENVLogFile.print(", ");
-    ENVLogFile.print(ENVData.ssc_temp);
-    ENVLogFile.print(", ");
-    ENVLogFile.print(ENVData.bno_temp);
-    ENVLogFile.print(", ");
-    ENVLogFile.print(ENVData.mcp_temp);
-    ENVLogFile.print(", ");
-    ENVLogFile.println(teensy);
+    ENVLogFile.write(", ");
+    ENVLogFile.write(ENVData.bme_pres);
+    ENVLogFile.write(", ");
+    ENVLogFile.write(ENVData.bme_temp);
+    ENVLogFile.write(", ");
+    ENVLogFile.write(ENVData.bme_humid);
+    ENVLogFile.write(", ");
+    ENVLogFile.write(ENVData.ssc_pres);
+    ENVLogFile.write(", ");
+    ENVLogFile.write(ENVData.ssc_temp);
+    ENVLogFile.write(", ");
+    ENVLogFile.write(ENVData.bno_temp);
+    ENVLogFile.write(", ");
+    ENVLogFile.write(ENVData.mcp_temp);
+    ENVLogFile.write(", ");
+    ENVLogFile.write(teensy);
+    ENVLogFile.write("/n");
 
     ENVLogFile.flush();
 }
@@ -765,7 +762,7 @@ void send_and_log(uint8_t data[], uint8_t data_len)
      */
 
 // send the data via xbee
-    Serial.write(data, data_len);
+    debug_serial.write(data, data_len);
 
 // log the sent data
     //logPkt(LogFile, data, sizeof(data), 0);
