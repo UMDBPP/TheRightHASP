@@ -760,8 +760,8 @@ void send_and_log(uint8_t data[], uint8_t data_len)
     XbeeSentByteCtr += data_len;
 }
 
-//void logPkt(File file, uint8_t data[], uint8_t len, uint8_t received_flg)
-//{
+void logPkt(File file, uint8_t data[], uint8_t len, uint8_t received_flg)
+{
     /*  logPkt()
      *
      *  Prints an entry in the given log file containing the given data. Will prepend an
