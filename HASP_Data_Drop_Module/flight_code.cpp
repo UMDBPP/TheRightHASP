@@ -25,6 +25,9 @@ int main(){
     return -2;
   }
   //open usb line
+  while BPP::RS232Serial!=0 {
+  	BPP::RS232Serial
+  }
   BPP::RS232Serial usb;
   int portOpen = usb.portOpen("/dev/ttyACM0", B57600, 8, 'N', 1);
   if(portOpen != 0){
