@@ -30,7 +30,7 @@ int main(){
   while(portOpen != 0){
     cerr << "Error opening usb line" << endl;
     digitalWrite(1,HIGH);
-    usb.portOpen("/dev/ttyACM0", B57600, 8, 'N', 1);
+    portOpen = usb.portOpen("/dev/ttyACM0", B57600, 8, 'N', 1);
     return -1;
   }
   //open camera
