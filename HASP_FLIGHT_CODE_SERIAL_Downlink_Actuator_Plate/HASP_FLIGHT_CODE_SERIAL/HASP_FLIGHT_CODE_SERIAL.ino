@@ -23,7 +23,7 @@ int teensy = 0;
 #define TEENSY_PIN A4
 #define ACTUATOR_PIN_HBRIDGE_A 3 // yellow
 #define ACTUATOR_PIN_HBRIDGE_B 4 // green
-
+#define LED 13
 
 /* APIDs */
 #define COMMAND_APID 500
@@ -306,7 +306,10 @@ void loop(void)
      *  Log sensors
      *  Reads from xbee and processes any data
      */
-
+// blinks LED
+    LED = HIGH;
+    delay(50);
+    LED = LOW;
 
 // declare structures to store data
     IMUData_s IMUData;
@@ -344,12 +347,20 @@ void loop(void)
     debug_serial.println("looped");
     
     if (COMMAND == LOW){
-      delay(50);
+      delay(25);
+      LED = HIGH;
       COMMAND = digitalRead(COMMAND_PIN);
           if (COMMAND == LOW){
-          retract(25);
-          debug_serial.println("retract");
+              LED = HIGH;
+              delay(25);
+          
+              if (COMMAND == LOW) {
+                LED = HIGH;
+                retract(25);
+                debug_serial1.println("retract");
+              }
           }
+           
     }
 
 
