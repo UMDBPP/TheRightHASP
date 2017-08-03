@@ -66,7 +66,7 @@ SSC ssc(0x28, 255);
 
 //// Serial object aliases
 // so that the user doesn't have to keep track of which is which
-#define debug_serial Serial1
+#define debug_serial Serial
 
 //// Data Structures
 // imu data
@@ -290,7 +290,6 @@ void setup(void)
     pinMode(COMMAND_PIN, INPUT);
     pinMode(ACTUATOR_PIN_HBRIDGE_A, OUTPUT);
     pinMode(ACTUATOR_PIN_HBRIDGE_B, OUTPUT);
-    pinMode(LED,OUTPUT);
 
     digitalWrite(ACTUATOR_PIN_HBRIDGE_A, LOW);
     digitalWrite(ACTUATOR_PIN_HBRIDGE_B, LOW);
@@ -307,8 +306,10 @@ void loop(void)
      *  Log sensors
      *  Reads from xbee and processes any data
      */
-
-    
+// blinks LED
+    LED = HIGH;
+    delay(50);
+    LED = LOW;
 
 // declare structures to store data
     IMUData_s IMUData;
@@ -344,27 +345,24 @@ void loop(void)
   
     COMMAND = digitalRead(COMMAND_PIN);
     debug_serial.println("looped");
-    // blinks LED
-    digitalWrite(LED,HIGH);
-    delay(25);
     
     if (COMMAND == LOW){
       delay(25);
-      digitalWrite(LED,LOW);
+      LED = HIGH;
       COMMAND = digitalRead(COMMAND_PIN);
           if (COMMAND == LOW){
-              digitalWrite(LED,HIGH);
+              LED = HIGH;
               delay(25);
           
               if (COMMAND == LOW) {
-                digitalWrite(LED,HIGH);
+                LED = HIGH;
                 retract(25);
-                debug_serial.println("retract");
+                debug_serial1.println("retract");
               }
           }
            
     }
-    digitalWrite(LED,LOW);
+
 
 // wait a bit
     delay(10);
