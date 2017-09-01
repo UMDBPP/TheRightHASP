@@ -23,21 +23,27 @@
 
 using namespace std;
 int cam = 4;	    // 4 is working; 1 is broken
-int t = 30;	    // time for LED to blink
+int t = 3;	    // time for LED to blink
 int camTime = 60;   // time between pictures
+
+#define working 4
+#define blueled 5
+#define redled 4
+#define greenled 1
+#define broken 1
 
 int main() {
   // GPIO pin setup for indicator LED
   wiringPiSetup();
-  pinMode(1,OUTPUT); pinMode(4,OUTPUT); pinMode(5,OUTPUT);
-  digitalWrite(1,LOW);digitalWrite(4,LOW);digitalWrite(5,LOW);delay(500);
+  pinMode(greenled,OUTPUT); pinMode(redled,OUTPUT); pinMode(blueled,OUTPUT);
+  digitalWrite(greenled,LOW);digitalWrite(redled,LOW);digitalWrite(blueled,LOW);delay(500);
 
   // File setup
   ofstream file;
   file.open("/home/pi/Desktop/flight_data.txt", ios::app);
   if(!file.is_open())
   {
-    digitalWrite(1,LOW);digitalWrite(4,LOW);digitalWrite(5,HIGH);
+    digitalWrite(greenled,LOW);digitalWrite(redled,LOW);digitalWrite(blueled,HIGH);
     cerr << "File Error: Try deleting the data file on Desktop." << endl;
     return -2;
   }
@@ -47,10 +53,10 @@ int main() {
   if(!Camera.open())
   {
     cerr << "Camera Error: check pi cam connection." << endl;
-    cam = 1;
+    cam = broken;
   }
   sleep(3);
-  Camera.release();
+  //Camera.release();
 
   // USB connection setup
   BPP::RS232Serial usb;
@@ -58,7 +64,7 @@ int main() {
   // Waits for the USB line to be plugged in.
   while(int portOpen = usb.portOpen("/dev/ttyACM0", B57600, 8, 'N', 1))
   {
-    digitalWrite(1,HIGH);digitalWrite(4,LOW);digitalWrite(5,LOW);
+    digitalWrite(greenled,HIGH);digitalWrite(redled,LOW);digitalWrite(blueled,LOW);
     cerr << "Connection Error: check that the USB cable is plugged in." << endl;
     delay(10000);
     usb.portClose();
@@ -66,7 +72,7 @@ int main() {
 
   // LED blinks for 10 seconds to signify that it is ready to go.
   // blinks red if there is a camera error; green if all is working
-  digitalWrite(1,LOW);digitalWrite(4,LOW);digitalWrite(5,LOW);
+  digitalWrite(greenled,LOW);digitalWrite(redled,LOW);digitalWrite(blueled,LOW);
   for (int i=0; i<t; i++)
     {
       digitalWrite(cam,HIGH);
@@ -78,12 +84,10 @@ int main() {
   //init variables
   string input = "";
   int x = 0;
-  usb.portOpen("/dev/ttyACM0", B57600, 8, 'N', 1);
 
-  file.open("/home/pi/Desktop/flight_data.txt", ios::app);
   for(;;) {
 
-    digitalWrite(5, HIGH);
+    digitalWrite(blueled, HIGH);
     //get data from usb line (every sec)
 
     int rcvdData = usb.rxData();
@@ -95,44 +99,73 @@ int main() {
       usb.portFlush();
     }
       file.flush();
+      cout << "here";
 
     //take a picture
-    if (x%camTime == 0 && cam == 4)
+    if (x%camTime == 0 && cam == working)
     {
-      if(!Camera.open())
-      {
-        cam = 1;
-      }
-      if(cam == 4)
+      //if(!Camera.open())
+     // {
+      //  cam = broken;
+     // }
+      if(cam == working)
       {
         unsigned char *data = new unsigned char[Camera.getImageTypeSize(raspicam::
 						     RASPICAM_FORMAT_RGB)];
-        Camera.grab();
+        cout << "1";
+  
+        //Camera.grab();
+
         int i = x/camTime;
+
+        cout << "2";
         stringstream ss;
+
+        cout << "3";
         string str = "/home/pi/Desktop/Pictures/imag_";
+
+        cout << "4";
         ss << i;
+
+        cout << "5";
         str += ss.str() + ".ppm";
+
+        cout << "6";
         Camera.grab();
+
+        cout << "7";
         Camera.retrieve(data, raspicam::RASPICAM_FORMAT_RGB);
+
+        cout << "8";
         cout << "taking picture " << i << ", iteration " << x << endl;
+
+        cout << "9";
         std::ofstream output(str.c_str(), std::ios::binary);
+
+        cout << "0";
         output << "P6\n" << Camera.getWidth() << " " << Camera.getHeight() <<
+
+        cout << "10";
 	" 255\n";
+
+        cout << "11";
         output.write( (char*) data, Camera.getImageTypeSize(raspicam::
 							  RASPICAM_FORMAT_RGB));
-        Camera.release();
+
+        cout << "12";
+        //Camera.release();
+
         delete data;
+        cout << "13";
       }
     }
-    usleep(100);
+   usleep(1000000);
     x++;
   }
   cout << "Test Complete!" << endl;
   //close and free
   usb.portClose();
   file.close();
-  file.close();
-  digitalWrite(4, HIGH); digitalWrite(5, LOW);
+  digitalWrite(redled, HIGH); digitalWrite(blueled, LOW);
   return 0;
 }
