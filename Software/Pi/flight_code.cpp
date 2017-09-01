@@ -49,13 +49,13 @@ int main() {
   }
 
   // Camera setup
-  raspicam::RaspiCam Camera;
-  if(!Camera.open())
-  {
-    cerr << "Camera Error: check pi cam connection." << endl;
-    cam = broken;
-  }
-  sleep(3);
+  //raspicam::RaspiCam Camera;
+  //if(!Camera.open())
+  //{
+   // cerr << "Camera Error: check pi cam connection." << endl;
+    //cam = broken;
+  //}
+  //sleep(3);
   //Camera.release();
 
   // USB connection setup
@@ -92,15 +92,17 @@ int main() {
 
     int rcvdData = usb.rxData();
 
-    if(rcvdData > 0) {
-      input = usb.getData();
+    cout << "data";
+    input = usb.getData();
       cout << input << endl;
       file << input << endl;
       usb.portFlush();
-    }
+      file.flush();
+      cout.flush();
+    
       file.flush();
       cout << "here";
-
+/*
     //take a picture
     if (x%camTime == 0 && cam == working)
     {
@@ -116,6 +118,7 @@ int main() {
   
         //Camera.grab();
 
+        // Should produce an integer from truncation
         int i = x/camTime;
 
         cout << "2";
@@ -134,7 +137,7 @@ int main() {
         Camera.grab();
 
         cout << "7";
-        Camera.retrieve(data, raspicam::RASPICAM_FORMAT_RGB);
+        data = Camera.getImageBufferData();
 
         cout << "8";
         cout << "taking picture " << i << ", iteration " << x << endl;
@@ -161,6 +164,7 @@ int main() {
     }
    usleep(1000000);
     x++;
+*/
   }
   cout << "Test Complete!" << endl;
   //close and free
