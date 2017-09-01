@@ -40,7 +40,7 @@ BUSY = digitalRead(busypin);
   if(Serial.available()){ //check to see if there is anything ready to be read from Raspberry pi
     
     digitalWrite(droppin, HIGH);  //send a high analog signal if still connected to Pi
-    digitalWrite(led, HIGH); //Make led light turn off if we are still connected to Pi
+    digitalWrite(led, LOW); //Make led light turn off if we are still connected to Pi
   }
   else{
   digitalWrite(droppin, LOW); //send a low analog signal if disconnected from Pi
