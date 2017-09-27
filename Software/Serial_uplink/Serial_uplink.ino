@@ -26,12 +26,12 @@ int teensy = 0;
 
 
 /* APIDs */
-#define COMMAND_APID 500
-#define STATUS_APID 501
-#define PACKET_COUNTER_APID 510
-#define ENVIRONMENTAL_PACKET_ID 0x16
-#define POWER_PACKET_APID 530
-#define IMU_PACKET_ID 0x18
+#define RetractActuator 'A'
+#define ExtendActuator 'C'
+#define case3 'E'
+#define case4 'G'
+#define case5 'I'
+#define case6 'K'
 
 long start_millis;
 #define CYCLE_DELAY 100 // time between execution cycles [ms]
@@ -122,6 +122,7 @@ uint16_t CmdExeCtr = 0;
 uint16_t CmdRejCtr = 0;
 uint32_t XbeeRcvdByteCtr = 0;
 uint32_t XbeeSentByteCtr = 0;
+
 
 
 uint32_t destaddr = 2;
@@ -295,7 +296,7 @@ void setup(void)
     digitalWrite(ACTUATOR_PIN_HBRIDGE_B, LOW);
 
     armed = true;
-    delay(10000);
+    delay(1000);
 }
 
 void loop(void)
@@ -343,14 +344,14 @@ void loop(void)
     COMMAND = digitalRead(COMMAND_PIN);
     debug_serial.println("looped");
     
-    if (COMMAND == LOW){
-      delay(50);
-      COMMAND = digitalRead(COMMAND_PIN);
-          if (COMMAND == LOW){
-          retract(25);
-          debug_serial.println("retract");
-          }
-    }
+    //if (COMMAND == LOW){
+     // delay(50);
+      //COMMAND = digitalRead(COMMAND_PIN);
+        //  if (COMMAND == LOW){
+          //retract(25);
+          //debug_serial.println("retract");
+         // }
+    //}
 
 
 // wait a bit
@@ -365,7 +366,25 @@ void command_response(struct IMUData_s IMUData, struct ENVData_s ENVData, struct
      *  given an array of data (presumably containing a CCSDS packet), check if the
      *  packet is a CAMERA command packet, and if so, process it
      */
+    char Cmd;
+    if (Serial.available()>0){
+      Cmd = Serial.read();
 
+      switch(Cmd){
+        case RetractActuator:
+
+           debug_serial.print("Recieved Retract Cmd:  ");
+           retract(25);
+           debug_serial.println("Retracted");
+           break;
+
+        case ExtendActuator:
+          debug_serial.print("Recieved Extend Cmd:  ");
+          extend(10);
+          debug_serial.println("Extended");
+          break;
+      }
+    }
 
     
     uint16_t pktLength = 0;
@@ -382,6 +401,7 @@ void command_response(struct IMUData_s IMUData, struct ENVData_s ENVData, struct
 void log_imu(struct IMUData_s IMUData, File IMULogFile)
 {
 // print the time to the file
+    
     print_time(IMULogFile);
 // print the sensor values
     IMULogFile.print(", ");
@@ -412,7 +432,7 @@ void log_imu(struct IMUData_s IMUData, File IMULogFile)
     IMULogFile.println(IMUData.mag_z);
 
     IMULogFile.flush();
-    
+    debug_serial.println("IMU Data");
     debug_serial.print(", ");
     debug_serial.print(IMUData.system_calibration);
     debug_serial.print(", ");
@@ -474,7 +494,7 @@ void log_env(struct ENVData_s ENVData, File ENVLogFile)
     ENVLogFile.write("/n");
 
     ENVLogFile.flush();
-
+    debug_serial.println("ENV Data");
     debug_serial.print(", ");
     debug_serial.print(ENVData.bme_pres);
     debug_serial.print(", ");
