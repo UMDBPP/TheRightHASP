@@ -440,6 +440,8 @@ void log_imu(struct IMUData_s IMUData, File IMULogFile)
     debug_serial.print(", ");
     debug_serial.print(IMUData.mag_z);
     debug_serial.println(";");
+
+    debug_serial.flush();
 }
 
 void log_env(struct ENVData_s ENVData, File ENVLogFile)
@@ -490,6 +492,8 @@ void log_env(struct ENVData_s ENVData, File ENVLogFile)
     debug_serial.print(", ");
     debug_serial.print(teensy);
     debug_serial.println(";");
+
+    debug_serial.flush();
 }
 
 
